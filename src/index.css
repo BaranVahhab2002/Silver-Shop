@@ -1,0 +1,7 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Estedad:wght@100..900&family=Manrope:wght@200..800&family=Playpen+Sans+Arabic:wght@100..800&display=swap');
+@import "tailwindcss";
+
+body {
+  margin: 0;
+  font-family: "DM Sans", "Estedad", sans-serif;
+}
