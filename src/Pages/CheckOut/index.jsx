@@ -25,19 +25,25 @@ export default function Checkout() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ data }),
-      }
+      },
     );
+
     const result = await res.json();
+
     if (!res.ok) {
       throw new Error(result.error?.message || "ثبت اطلاعات ناموفق بود");
     }
+
     return result.data;
   };
 
   const submit = async (e) => {
     e.preventDefault();
+
     if (!cart.length || loading) return;
+
     setLoading(true);
+
     try {
       const customer = await createRecord("customers", {
         firstName: form.firstName.trim(),
@@ -55,11 +61,9 @@ export default function Checkout() {
       const order = await createRecord("orders", {
         orderName: `ORD-${Date.now()}`,
         orderStatus: "ready to send",
-        totalPrice: total,
-        totalAmount: total,
-        customer: {
-          connect: [customer.documentId],
-        },
+        subTotal: Number(total),
+        discountAmount: 0,
+        totalAmount: Number(total),
       });
 
       for (const item of cart) {
@@ -72,7 +76,6 @@ export default function Checkout() {
           },
         });
       }
-
       clearCart();
       toast.success("سفارش شما با موفقیت ثبت شد!");
       navigate("/profile", { replace: true });
@@ -86,9 +89,7 @@ export default function Checkout() {
   return (
     <main dir="rtl" className="min-h-screen bg-[#fdfbfc] px-4 py-12">
       <div className="mx-auto max-w-5xl">
-        <p className="mb-2 text-xs tracking-widest text-rose-400">
-          CHECKOUT
-        </p>
+        <p className="mb-2 text-xs tracking-widest text-rose-400">CHECKOUT</p>
 
         <h1 className="mb-8 text-3xl font-bold text-slate-800">
           تکمیل اطلاعات مشتری
@@ -136,9 +137,7 @@ export default function Checkout() {
               required
               rows={4}
               value={form.address}
-              onChange={(e) =>
-                setForm({ ...form, address: e.target.value })
-              }
+              onChange={(e) => setForm({ ...form, address: e.target.value })}
               className="w-full rounded-xl border border-rose-100 p-4 outline-none focus:border-rose-400"
             />
 
