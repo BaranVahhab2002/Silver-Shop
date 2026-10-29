@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ArrowRight, Package } from "lucide-react";
@@ -11,13 +10,15 @@ export default function OrderDetails() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const loadDetails = async () => {
+    (async () => {
       try {
         const API = import.meta.env.VITE_STRAPI_URL;
 
         const [orderRes, itemsRes] = await Promise.all([
           fetch(`${API}/api/orders/${encodeURIComponent(id)}`),
-          fetch(`${API}/api/order-items?populate=order&pagination[pageSize]=100`),
+          fetch(
+            `${API}/api/order-items?populate=order&pagination[pageSize]=100`,
+          ),
         ]);
 
         const orderData = await orderRes.json();
@@ -28,14 +29,16 @@ export default function OrderDetails() {
         }
 
         if (!itemsRes.ok) {
-          throw new Error(itemsData.error?.message || "خطا در دریافت اقلام سفارش");
+          throw new Error(
+            itemsData.error?.message || "خطا در دریافت اقلام سفارش",
+          );
         }
 
         setOrder(orderData.data);
 
         const filteredItems = (itemsData.data || []).filter(
           (item) =>
-            String(item.order?.documentId || item.order?.id) === String(id)
+            String(item.order?.documentId || item.order?.id) === String(id),
         );
 
         setItems(filteredItems);
@@ -44,21 +47,25 @@ export default function OrderDetails() {
       } finally {
         setLoading(false);
       }
-    };
-
-    loadDetails();
+    })();
   }, [id]);
 
   if (loading) {
-    return <p className="py-20 text-center text-slate-400">در حال دریافت سفارش...</p>;
+    return (
+      <p className="py-20 text-center text-slate-400">در حال دریافت سفارش...</p>
+    );
   }
 
   if (error || !order) {
-    return <p className="py-20 text-center text-red-500">{error || "سفارش پیدا نشد"}</p>;
+    return (
+      <p className="py-20 text-center text-red-500">
+        {error || "سفارش پیدا نشد"}
+      </p>
+    );
   }
 
   return (
-    <main dir="rtl" className="min-h-screen bg-[#fdfbfc] px-4 py-12">
+    <div dir="rtl" className="min-h-screen bg-[#fdfbfc] px-4 py-12">
       <div className="mx-auto max-w-5xl">
         <Link
           to="/profile"
@@ -119,21 +126,27 @@ export default function OrderDetails() {
           <div className="mt-7 space-y-3 border-t border-rose-100 pt-6 text-sm">
             <div className="flex justify-between text-slate-500">
               <span>جمع محصولات</span>
-              <span>{Number(order.subTotal).toLocaleString("fa-IR")} تومان</span>
+              <span>
+                {Number(order.subTotal).toLocaleString("fa-IR")} تومان
+              </span>
             </div>
 
             <div className="flex justify-between text-slate-500">
               <span>تخفیف</span>
-              <span>{Number(order.discountAmount).toLocaleString("fa-IR")} تومان</span>
+              <span>
+                {Number(order.discountAmount).toLocaleString("fa-IR")} تومان
+              </span>
             </div>
 
             <div className="flex justify-between text-lg font-bold text-rose-500">
               <span>مبلغ نهایی</span>
-              <span>{Number(order.totalAmount).toLocaleString("fa-IR")} تومان</span>
+              <span>
+                {Number(order.totalAmount).toLocaleString("fa-IR")} تومان
+              </span>
             </div>
           </div>
         </div>
       </div>
-    </main>
+    </div>
   );
 }

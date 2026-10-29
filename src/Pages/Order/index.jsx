@@ -8,7 +8,7 @@ export default function Orders() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const loadOrders = async () => {
+    (async () => {
       try {
         const res = await fetch(
           `${import.meta.env.VITE_STRAPI_URL}/api/orders?sort=createdAt:desc&pagination[pageSize]=100`,
@@ -26,9 +26,7 @@ export default function Orders() {
       } finally {
         setLoading(false);
       }
-    };
-
-    loadOrders();
+    })();
   }, []);
 
   if (loading) {

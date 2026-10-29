@@ -4,14 +4,13 @@ import {
   Home,
   Products,
   Cart,
-  Auth,
   Brands,
   Profile,
   ProductDetails,
   Favorites,
   Checkout,
 } from "../Pages";
-import Protected from "../Layout/Protected";
+
 import OrderDetails from "../Pages/OrderDetails";
 
 const router = createBrowserRouter([
@@ -22,10 +21,6 @@ const router = createBrowserRouter([
       {
         index: true,
         element: <Home />,
-      },
-      {
-        path: "auth",
-        element: <Auth />,
       },
       {
         path: "products",
@@ -48,28 +43,20 @@ const router = createBrowserRouter([
         element: <Favorites />,
       },
       {
-        element: <Protected />,
-        children: [
-          {
-            path: "cart",
-            element: <Cart />,
-          },
-          {
-            path: "profile",
-            element: <Profile />,
-          },
-          {
-            path: "checkout",
-            element: <Checkout />,
-          },
-          {
-            path: "orders/:id",
-            element: (
-
-                <OrderDetails />
-            ),
-          },
-        ],
+        path: "cart",
+        element: <Cart />,
+      },
+      {
+        path: "profile",
+        element: <Profile />,
+      },
+      {
+        path: "checkout",
+        element: <Checkout />,
+      },
+      {
+        path: "orders/:id",
+        element: <OrderDetails />,
       },
     ],
   },

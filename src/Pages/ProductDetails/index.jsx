@@ -11,15 +11,8 @@ import {
   Truck,
   Heart,
 } from "lucide-react";
-
-const readFavorites = () => {
-  try {
-    const data = JSON.parse(localStorage.getItem("favorites") || "[]");
-    return Array.isArray(data) ? data : [];
-  } catch {
-    return [];
-  }
-};
+import useCart from "../../Hooks/useCart";
+import useFavorites from "../../Hooks/useFavorites";
 
 export default function ProductDetails() {
   const { id } = useParams();
@@ -28,22 +21,13 @@ export default function ProductDetails() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [added, setAdded] = useState(false);
-  const [favorites, setFavorites] = useState(readFavorites);
+  const { add: addItemToCart } = useCart();
+
+  const { isFavorite: isInFavorites, toggle: toggleFavoriteItem } =
+    useFavorites();
 
   useEffect(() => {
-    const sync = () => setFavorites(readFavorites());
-    window.addEventListener("favoritesUpdated", sync);
-    window.addEventListener("storage", sync);
-    return () => {
-      window.removeEventListener("favoritesUpdated", sync);
-      window.removeEventListener("storage", sync);
-    };
-  }, []);
-
-  useEffect(() => {
-    const controller = new AbortController();
-
-    async function getProduct() {
+    (async ()=> {
       setLoading(true);
       setError("");
       setProduct(null);
@@ -53,23 +37,20 @@ export default function ProductDetails() {
       try {
         const res = await fetch(
           `${import.meta.env.VITE_STRAPI_URL}/api/products/${id}?populate=*`,
-          { signal: controller.signal },
         );
+
         if (!res.ok) throw new Error("محصول پیدا نشد");
+
         const data = await res.json();
-        if (!controller.signal.aborted)
-          setProduct(data.data?.attributes || data.data);
+        setProduct(data.data?.attributes || data.data);
       } catch (err) {
-        if (err.name !== "AbortError") setError(err.message);
+        setError(err.message);
       } finally {
-        if (!controller.signal.aborted) setLoading(false);
+        setLoading(false);
       }
-    }
+    })()
 
-    getProduct();
-    return () => controller.abort();
   }, [id]);
-
   if (loading)
     return (
       <div
@@ -96,7 +77,7 @@ export default function ProductDetails() {
       </div>
     );
 
-  const name = product.name || product.title || "محصول";
+  const name = product.name || "محصول";
   const price = Number(product.price || 0);
   const image = Array.isArray(product.image) ? product.image[0] : product.image;
   const imageUrl =
@@ -107,29 +88,14 @@ export default function ProductDetails() {
       : `${import.meta.env.VITE_STRAPI_URL}${imageUrl}`
     : "/images/product-placeholder.jpg";
   const description = product.description;
-  const isFavorite = favorites.some((item) => String(item.id) === String(id));
+  const isFavorite = isInFavorites(id);
 
   const toggleFavorite = () => {
-    const current = readFavorites();
-    const exists = current.some((item) => String(item.id) === String(id));
-    const updated = exists
-      ? current.filter((item) => String(item.id) !== String(id))
-      : [...current, { id, title: name, price, image: src }];
-
-    localStorage.setItem("favorites", JSON.stringify(updated));
-    setFavorites(updated);
-    window.dispatchEvent(new Event("favoritesUpdated"));
+    toggleFavoriteItem({ id, title: name, price, image: src });
   };
 
   const addToCart = () => {
-    const cart = JSON.parse(localStorage.getItem("cart") || "[]");
-    const existing = cart.find((item) => String(item.id) === String(id));
-
-    if (existing) existing.quantity += quantity;
-    else cart.push({ id, name, price, image: src, quantity });
-
-    localStorage.setItem("cart", JSON.stringify(cart));
-    window.dispatchEvent(new Event("cartUpdated"));
+    addItemToCart({ id, name, price, image: src }, quantity);
     setAdded(true);
   };
 

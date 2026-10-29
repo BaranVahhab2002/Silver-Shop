@@ -1,32 +1,15 @@
-import { useEffect, useState } from "react";
 import { Heart, Trash2, ShoppingBag } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import useFavorites from "../../Hooks/useFavorites";
 
 export default function Favorites() {
   const navigate = useNavigate();
-  const [favorites, setFavorites] = useState([]);
-
-  useEffect(() => {
-    try {
-      const saved = JSON.parse(localStorage.getItem("favorites") || "[]");
-      setFavorites(Array.isArray(saved) ? saved : []);
-    } catch {
-      setFavorites([]);
-    }
-  }, []);
-
-  const removeFavorite = (id) => {
-    const updated = favorites.filter((item) => String(item.id) !== String(id));
-
-    setFavorites(updated);
-    localStorage.setItem("favorites", JSON.stringify(updated));
-    window.dispatchEvent(new Event("favoritesUpdated"));
-  };
+  const { favorites, remove: removeFavorite } = useFavorites();
 
   return (
-    <main
+    <div
       dir="rtl"
-      className="min-h-screen bg-[#faf7f9] px-4 pb-20 pt-32 sm:px-8"
+      className="min-h-screen bg-[#faf7f9] px-4 pb-20 pt-10 sm:px-8"
     >
       <div className="mx-auto max-w-7xl">
         <div className="mb-10 flex items-center gap-3">
@@ -112,6 +95,6 @@ export default function Favorites() {
           </div>
         )}
       </div>
-    </main>
+    </div>
   );
 }

@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   ShoppingCart,
@@ -8,53 +7,19 @@ import {
   ShoppingBag,
   ArrowLeft,
 } from "lucide-react";
+import useCart from "../../Hooks/useCart";
 
 export default function Cart() {
-  const [items, setItems] = useState(() => {
-    try {
-      return JSON.parse(localStorage.getItem("cart") || "[]");
-    } catch {
-      return [];
-    }
-  });
+  const {
+    items,
+    totalItems,
+    totalPrice,
+    increase,
+    decrease,
+    remove,
+    clear: clearCart,
+  } = useCart();
   const navigate = useNavigate();
-  useEffect(() => {
-    localStorage.setItem("cart", JSON.stringify(items));
-    window.dispatchEvent(new Event("cartUpdated"));
-  }, [items]);
-
-  const increase = (id) => {
-    setItems((prev) =>
-      prev.map((item) =>
-        item.id === id ? { ...item, quantity: item.quantity + 1 } : item,
-      ),
-    );
-  };
-
-  const decrease = (id) => {
-    setItems((prev) =>
-      prev.map((item) =>
-        item.id === id
-          ? { ...item, quantity: Math.max(1, item.quantity - 1) }
-          : item,
-      ),
-    );
-  };
-
-  const remove = (id) => {
-    setItems((prev) => prev.filter((item) => item.id !== id));
-  };
-
-  const clearCart = () => {
-    setItems([]);
-  };
-
-  const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
-
-  const totalPrice = items.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0,
-  );
 
   if (items.length === 0) {
     return (

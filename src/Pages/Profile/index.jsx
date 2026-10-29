@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import {  useNavigate } from "react-router-dom";
 import {
   UserRound,
   Package,
@@ -34,7 +34,7 @@ export default function Profile() {
   const [ordersCount, setOrdersCount] = useState(0);
 
   useEffect(() => {
-    const fetchOrdersCount = async () => {
+    (async () => {
       try {
         const res = await fetch(
           `${import.meta.env.VITE_STRAPI_URL}/api/orders?pagination[pageSize]=1`,
@@ -50,9 +50,7 @@ export default function Profile() {
       } catch (error) {
         console.error("Error fetching orders count:", error);
       }
-    };
-
-    fetchOrdersCount();
+    })();
   }, []);
 
   const tabs = [
@@ -74,9 +72,6 @@ export default function Profile() {
     setEditing(false);
   };
 
-  const logout = () => {
-    navigate("/auth");
-  };
 
   return (
     <div
@@ -128,7 +123,6 @@ export default function Profile() {
               <div className="my-3 border-t border-rose-100" />
 
               <button
-                onClick={logout}
                 className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm text-red-400 transition hover:bg-red-50"
               >
                 <LogOut size={19} />
@@ -230,7 +224,6 @@ export default function Profile() {
                 </div>
               </>
             )}
-
             {activeTab === "orders" && <Orders />}
           </div>
         </div>

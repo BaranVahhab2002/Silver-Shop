@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Menu,
   X,
@@ -8,6 +8,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import useCart from "../../Hooks/useCart";
 
 const navLinks = [
   { label: "خانه", href: "/" },
@@ -19,34 +20,7 @@ export default function Navbar() {
   const navigate = useNavigate();
 
   const [menuOpen, setMenuOpen] = useState(false);
-  const [cartCount, setCartCount] = useState(0);
-
-  useEffect(() => {
-    const updateCartCount = () => {
-      try {
-        const cart = JSON.parse(localStorage.getItem("cart") || "[]");
-
-        const count = cart.reduce(
-          (total, item) => total + Number(item.quantity || 0),
-          0,
-        );
-
-        setCartCount(count);
-      } catch {
-        setCartCount(0);
-      }
-    };
-
-    updateCartCount();
-
-    window.addEventListener("cartUpdated", updateCartCount);
-    window.addEventListener("storage", updateCartCount);
-
-    return () => {
-      window.removeEventListener("cartUpdated", updateCartCount);
-      window.removeEventListener("storage", updateCartCount);
-    };
-  }, []);
+  const { totalItems: cartCount } = useCart();
 
   return (
     <nav className="fixed top-0 z-50 w-full border-b border-pink-100/80 bg-white/95 shadow-[0_4px_24px_rgba(190,130,155,0.06)] backdrop-blur-xl">
